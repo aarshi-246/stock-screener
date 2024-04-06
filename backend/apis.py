@@ -1,6 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 from urllib.parse import urlparse, parse_qs
+import pymongo
 
 def fetch_filtered_stock_data_from_mongodb(min_open_price=None, max_open_price=None, min_volume=None):
         # Connect to MongoDB
@@ -57,7 +58,10 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         min_open_price = float(query_params.get('min_open_price', [None])[0]) if 'min_open_price' in query_params else None
         max_open_price = float(query_params.get('max_open_price', [None])[0]) if 'max_open_price' in query_params else None
         min_volume = float(query_params.get('min_volume', [None])[0]) if 'min_volume' in query_params else None
+        print("---------------------")
+        print(min_open_price, max_open_price, min_volume)
         filtered_data = fetch_filtered_stock_data_from_mongodb(min_open_price, max_open_price, min_volume)
+        print(filtered_data)
         response_data = list(filtered_data)
 
         self.send_response(200)
