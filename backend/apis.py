@@ -2,6 +2,43 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 from urllib.parse import urlparse, parse_qs
 
+def fetch_filtered_stock_data_from_mongodb(min_open_price=None, max_open_price=None, min_volume=None):
+        # Connect to MongoDB
+        client = pymongo.MongoClient("mongodb+srv://database:pass1234@cluster0.lgfoq8t.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+        # Access the database
+        db = client["screener"]
+        # Access the collection
+        collection = db["stock_screener"]
+
+        # Check if all filter parameters are None
+        if min_open_price is None and max_open_price is None and min_volume is None:
+            # Return all records without applying any filter
+            return collection.find({})
+
+        # Define match conditions
+        match_conditions = {}
+
+        # Add price range conditions if provided
+        if min_open_price is not None:
+            match_conditions["livePriceDto.open"] = {"$gte": min_open_price}
+        if max_open_price is not None:
+            match_conditions.setdefault("livePriceDto.open", {})["$lte"] = max_open_price
+
+        # Add minimum volume filter if provided
+        if min_volume is not None:
+            match_conditions["livePriceDto.volume"] = {"$gte": min_volume}
+
+        # Define the aggregation pipeline with $match stage for filtering
+        pipeline = [{"$match": match_conditions}]
+
+        # Perform aggregation with the defined pipeline
+        filtered_data = collection.aggregate(pipeline)
+
+        # Close the MongoDB connection
+        client.close()
+
+        return filtered_data
+
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed_path = urlparse(self.path)
@@ -17,8 +54,12 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def handle_filter_request(self):
         query_params = parse_qs(urlparse(self.path).query)
-        filter_param = query_params.get('param', [None])[0]
-        response_data = {"message": f"Filtered data based on parameter: {filter_param}"}
+        min_open_price = float(query_params.get('min_open_price', [None])[0]) if 'min_open_price' in query_params else None
+        max_open_price = float(query_params.get('max_open_price', [None])[0]) if 'max_open_price' in query_params else None
+        min_volume = float(query_params.get('min_volume', [None])[0]) if 'min_volume' in query_params else None
+        filtered_data = fetch_filtered_stock_data_from_mongodb(min_open_price, max_open_price, min_volume)
+        response_data = list(filtered_data)
+
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
         self.end_headers()
