@@ -8,6 +8,11 @@ def fetch_filtered_stock_data_from_mongodb(min_open_price=None, max_open_price=N
     # Access the collection
     collection = db["stock_screener"]
     
+    # Check if all filter parameters are None
+    if min_open_price is None and max_open_price is None and min_volume is None:
+        # Return all records without applying any filter
+        return collection.find({})
+    
     # Define match conditions
     match_conditions = {}
     
@@ -37,7 +42,7 @@ min_open_price = None  # Minimum open price
 max_open_price = None  # Maximum open price
 
 # Define minimum volume filter value (optional)
-min_volume_value = 500000   # Minimum volume threshold
+min_volume_value = None   # Minimum volume threshold
 
 # Fetch filtered stock data from MongoDB with optional minimum volume filter
 filtered_data = fetch_filtered_stock_data_from_mongodb(min_open_price, max_open_price, min_volume_value)
