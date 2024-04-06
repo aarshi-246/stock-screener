@@ -62,8 +62,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         print(min_open_price, max_open_price, min_volume)
         filtered_data = fetch_filtered_stock_data_from_mongodb(min_open_price, max_open_price, min_volume)
         print(filtered_data)
-        response_data = list(filtered_data)
-
+        response_data = [ {**doc, '_id': str(doc['_id'])} for doc in filtered_data ]
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
         self.send_header('Access-Control-Allow-Origin', 'http://localhost')
