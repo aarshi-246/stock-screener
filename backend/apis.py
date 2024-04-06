@@ -62,7 +62,12 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', 'http://localhost')
+        self.send_header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
         self.end_headers()
+        #   res.header("Access-Control-Allow-Origin", "http://localhost:3002");
+    # res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        
         self.wfile.write(json.dumps(response_data).encode())
 
     def handle_search_request(self):
