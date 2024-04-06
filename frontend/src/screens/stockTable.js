@@ -3,6 +3,7 @@ import axios from "axios";
 import StockScreenerTable from "../components/screenerTable";
 import StockFilter from "../components/FilterComponent";
 import { Grid, Typography } from "@mui/material";
+import { getAllStocksApi } from "../api";
 
 let dummyData = [
   {
@@ -227,7 +228,7 @@ const StockScreener = () => {
 
   const fetchStocks = async () => {
     try {
-      const response = await axios.get("YOUR_API_ENDPOINT_HERE");
+      const response = await getAllStocksApi();
       setStocks(response.data);
       setLoading(false);
     } catch (error) {

@@ -3,7 +3,7 @@ import { Typography } from "@mui/material";
 
 const PriceData = ({ priceData }) => {
   return (
-    <div className="price-data">
+    <div style={{ alignContent: "center" }}>
       <Typography variant="h6">Price Data</Typography>
       <Typography variant="body1">
         NSE Year Low: {priceData.nse.yearLowPrice}
